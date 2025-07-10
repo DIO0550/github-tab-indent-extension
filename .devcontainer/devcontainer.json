@@ -1,0 +1,43 @@
+{
+  "name": "GitHub Tab Indent Extension",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "postCreateCommand": "pnpm install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "typescript.preferences.quoteStyle": "single",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": true
+        },
+        "files.exclude": {
+          "**/node_modules": true,
+          "**/dist": true,
+          "**/.git": true,
+          "**/.DS_Store": true
+        }
+      }
+    }
+  },
+  "forwardPorts": [3000, 8080],
+  "portsAttributes": {
+    "3000": {
+      "label": "Development Server",
+      "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "Extension Server",
+      "onAutoForward": "notify"
+    }
+  }
+}
