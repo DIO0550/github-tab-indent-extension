@@ -29,6 +29,9 @@
       }
     }
   },
+  "remoteEnv": {
+    "GITHUB_TOKEN": "${localEnv:GITHUB_PERSONAL_ACCESS_TOKEN}"
+  },
   "forwardPorts": [3000, 8080],
   "portsAttributes": {
     "3000": {
