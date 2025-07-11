@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../:/workspace:cached
-      - ~/.gitconfig:/home/developer/.gitconfig:ro
+      - ~/.gitconfig:/home/node/.gitconfig:ro
     working_dir: /workspace
     command: sleep infinity
     environment:
