@@ -1,6 +1,9 @@
 # CLAUDE.md (project instructions)
 CLAUDE.md
 
+# Dependencies lock file
+pnpm-lock.yaml
+
 # Logs
 logs
 *.log
