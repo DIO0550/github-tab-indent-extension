@@ -1,0 +1,81 @@
+import { describe, it, expect } from "vitest";
+import { addIndent, removeIndent } from "./indentProcessor";
+
+describe("indentProcessor", () => {
+  describe("addIndent", () => {
+    it("カーソル位置にインデントを追加する", () => {
+      const value = "Hello World";
+      const result = addIndent(value, 5, 5);
+      
+      expect(result.newValue).toBe("Hello   World");
+      expect(result.cursorPosition).toBe(7);
+    });
+
+    it("選択範囲を置き換えてインデントを追加する", () => {
+      const value = "Hello World";
+      const result = addIndent(value, 5, 11);
+      
+      expect(result.newValue).toBe("Hello  ");
+      expect(result.cursorPosition).toBe(7);
+    });
+
+    it("行頭でインデントを追加する", () => {
+      const value = "Hello World";
+      const result = addIndent(value, 0, 0);
+      
+      expect(result.newValue).toBe("  Hello World");
+      expect(result.cursorPosition).toBe(2);
+    });
+
+    it("複数行のテキストでインデントを追加する", () => {
+      const value = "Line 1\nLine 2";
+      const result = addIndent(value, 7, 7);
+      
+      expect(result.newValue).toBe("Line 1\n  Line 2");
+      expect(result.cursorPosition).toBe(9);
+    });
+  });
+
+  describe("removeIndent", () => {
+    it("行頭のインデントを削除する", () => {
+      const value = "  Hello World";
+      const result = removeIndent(value, 2, 2);
+      
+      expect(result).toBeDefined();
+      expect(result!.newValue).toBe("Hello World");
+      expect(result!.cursorPosition).toBe(0);
+    });
+
+    it("インデントがない場合はundefinedを返す", () => {
+      const value = "Hello World";
+      const result = removeIndent(value, 5, 5);
+      
+      expect(result).toBeUndefined();
+    });
+
+    it("行の途中でインデントがある場合は削除する", () => {
+      const value = "Line 1\n  Line 2";
+      const result = removeIndent(value, 9, 9);
+      
+      expect(result).toBeDefined();
+      expect(result!.newValue).toBe("Line 1\nLine 2");
+      expect(result!.cursorPosition).toBe(7);
+    });
+
+    it("部分的なインデントの場合はundefinedを返す", () => {
+      const value = " Hello World";
+      const result = removeIndent(value, 1, 1);
+      
+      expect(result).toBeUndefined();
+    });
+
+    it("選択範囲がある場合でもインデントを削除する", () => {
+      const value = "  Hello World";
+      const result = removeIndent(value, 2, 7);
+      
+      expect(result).toBeDefined();
+      expect(result!.newValue).toBe(" World");
+      expect(result!.cursorPosition).toBe(0);
+    });
+  });
+});
