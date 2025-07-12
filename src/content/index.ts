@@ -1,10 +1,6 @@
-import {
-  INDENT_SIZE,
-  INDENT_STRING,
-  KEY_CODES,
-  EVENT_TYPES,
-} from "./constants";
+import { KEY_CODES, EVENT_TYPES } from "./constants";
 import { getTextAreaElement } from "./textareaDetector";
+import { createIndentHandler } from "./indentHandler";
 
 function handleTabKey(event: KeyboardEvent): void {
   if (event.key !== KEY_CODES.TAB) {
@@ -27,23 +23,12 @@ function handleTabKey(event: KeyboardEvent): void {
     return;
   }
 
-  if (event.shiftKey) {
-    const beforeCursor = value.substring(0, start);
-    const afterCursor = value.substring(end);
-
-    const lines = beforeCursor.split("\n");
-    const currentLine = lines[lines.length - 1];
-
-    if (currentLine.startsWith(INDENT_STRING)) {
-      const newValue = value.substring(0, start - INDENT_SIZE) + afterCursor;
-      target.value = newValue;
-      target.selectionStart = target.selectionEnd = start - INDENT_SIZE;
-    }
-  } else {
-    const newValue =
-      value.substring(0, start) + INDENT_STRING + value.substring(end);
-    target.value = newValue;
-    target.selectionStart = target.selectionEnd = start + INDENT_SIZE;
+  const handler = createIndentHandler(event);
+  const result = handler(value, start, end);
+  
+  if (result) {
+    target.value = result.newValue;
+    target.selectionStart = target.selectionEnd = result.cursorPosition;
   }
 
   target.dispatchEvent(new Event(EVENT_TYPES.INPUT, { bubbles: true }));
