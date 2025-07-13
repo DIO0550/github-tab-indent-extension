@@ -1,7 +1,7 @@
 import { EVENT_TYPES } from "./constants";
 import { getTextAreaElement } from "./textareaDetector";
 import { detectIndentAction, IndentActionType } from "./shortcutDetector";
-import { createIndentHandlerFromType } from "./indentHandler";
+import { indentHandlerFor } from "./indentHandler";
 
 function handleKeyDown(event: KeyboardEvent): void {
   const target = getTextAreaElement(event);
@@ -26,7 +26,7 @@ function handleKeyDown(event: KeyboardEvent): void {
   }
 
   // インデント操作タイプから適切なハンドラーを取得
-  const indentHandler = createIndentHandlerFromType(actionType);
+  const indentHandler = indentHandlerFor(actionType);
   if (!indentHandler) {
     return;
   }
