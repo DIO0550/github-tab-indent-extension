@@ -4,6 +4,9 @@ CLAUDE.md
 # Dependencies lock file
 pnpm-lock.yaml
 
+# pnpm store directory
+.pnpm-store/
+
 # Logs
 logs
 *.log
