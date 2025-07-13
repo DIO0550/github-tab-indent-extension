@@ -20,6 +20,32 @@ export function isTabKey(event: KeyboardEvent): boolean {
 }
 
 /**
+ * インデント追加操作かどうかを判定（Tab単体）
+ * @param event キーボードイベント
+ * @returns 該当する場合true
+ */
+export function isAddIndentWithTab(event: KeyboardEvent): boolean {
+  return isTabKey(event) && 
+         !event.shiftKey && 
+         !event.ctrlKey && 
+         !event.altKey && 
+         !event.metaKey;
+}
+
+/**
+ * インデント削除操作かどうかを判定（Shift+Tab）
+ * @param event キーボードイベント
+ * @returns 該当する場合true
+ */
+export function isRemoveIndentWithTab(event: KeyboardEvent): boolean {
+  return isTabKey(event) && 
+         event.shiftKey && 
+         !event.ctrlKey && 
+         !event.altKey && 
+         !event.metaKey;
+}
+
+/**
  * インデント追加のショートカット（Cmd/Ctrl + ]）かどうかを判定
  * @param event キーボードイベント
  * @returns 該当する場合true
@@ -44,23 +70,34 @@ export function isRemoveIndentShortcut(event: KeyboardEvent): boolean {
 }
 
 /**
+ * インデント追加操作かどうかを判定（すべてのパターン）
+ * @param event キーボードイベント
+ * @returns 該当する場合true
+ */
+export function isAddIndent(event: KeyboardEvent): boolean {
+  return isAddIndentWithTab(event) || isAddIndentShortcut(event);
+}
+
+/**
+ * インデント削除操作かどうかを判定（すべてのパターン）
+ * @param event キーボードイベント
+ * @returns 該当する場合true
+ */
+export function isRemoveIndent(event: KeyboardEvent): boolean {
+  return isRemoveIndentWithTab(event) || isRemoveIndentShortcut(event);
+}
+
+/**
  * キーイベントからインデント操作のタイプを判定
  * @param event キーボードイベント
  * @returns インデント操作のタイプ
  */
 export function detectIndentAction(event: KeyboardEvent): IndentActionType {
-  // Tabキーの場合
-  if (isTabKey(event)) {
-    return event.shiftKey ? IndentActionType.REMOVE : IndentActionType.ADD;
-  }
-  
-  // Cmd/Ctrl + ] の場合
-  if (isAddIndentShortcut(event)) {
+  if (isAddIndent(event)) {
     return IndentActionType.ADD;
   }
   
-  // Cmd/Ctrl + [ の場合
-  if (isRemoveIndentShortcut(event)) {
+  if (isRemoveIndent(event)) {
     return IndentActionType.REMOVE;
   }
   

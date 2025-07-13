@@ -3,8 +3,12 @@ import {
   detectIndentAction, 
   IndentActionType,
   isTabKey,
+  isAddIndentWithTab,
+  isRemoveIndentWithTab,
   isAddIndentShortcut,
-  isRemoveIndentShortcut
+  isRemoveIndentShortcut,
+  isAddIndent,
+  isRemoveIndent
 } from './shortcutDetector';
 
 describe('shortcutDetector', () => {
@@ -17,6 +21,70 @@ describe('shortcutDetector', () => {
     test('Tab以外のキーは検出しない', () => {
       const event = new KeyboardEvent('keydown', { key: 'Enter' });
       expect(isTabKey(event)).toBe(false);
+    });
+  });
+
+  describe('isAddIndentWithTab', () => {
+    test('Tab単体を検出する', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: false });
+      expect(isAddIndentWithTab(event)).toBe(true);
+    });
+
+    test('Shift+Tabは検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true });
+      expect(isAddIndentWithTab(event)).toBe(false);
+    });
+
+    test('Ctrl+Tabは検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', ctrlKey: true });
+      expect(isAddIndentWithTab(event)).toBe(false);
+    });
+
+    test('Alt+Tabは検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', altKey: true });
+      expect(isAddIndentWithTab(event)).toBe(false);
+    });
+
+    test('Cmd/Meta+Tabは検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', metaKey: true });
+      expect(isAddIndentWithTab(event)).toBe(false);
+    });
+
+    test('Tab以外のキーは検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Enter' });
+      expect(isAddIndentWithTab(event)).toBe(false);
+    });
+  });
+
+  describe('isRemoveIndentWithTab', () => {
+    test('Shift+Tabを検出する', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true });
+      expect(isRemoveIndentWithTab(event)).toBe(true);
+    });
+
+    test('Tab単体は検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: false });
+      expect(isRemoveIndentWithTab(event)).toBe(false);
+    });
+
+    test('Shift+Ctrl+Tabは検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, ctrlKey: true });
+      expect(isRemoveIndentWithTab(event)).toBe(false);
+    });
+
+    test('Shift+Alt+Tabは検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, altKey: true });
+      expect(isRemoveIndentWithTab(event)).toBe(false);
+    });
+
+    test('Shift+Cmd/Meta+Tabは検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, metaKey: true });
+      expect(isRemoveIndentWithTab(event)).toBe(false);
+    });
+
+    test('Shift+他のキーは検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true });
+      expect(isRemoveIndentWithTab(event)).toBe(false);
     });
   });
 
@@ -75,6 +143,50 @@ describe('shortcutDetector', () => {
         altKey: true,
       });
       expect(isRemoveIndentShortcut(event)).toBe(false);
+    });
+  });
+
+  describe('isAddIndent', () => {
+    test('Tab単体を検出する', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: false });
+      expect(isAddIndent(event)).toBe(true);
+    });
+
+    test('Cmd + ]を検出する', () => {
+      const event = new KeyboardEvent('keydown', { key: ']', metaKey: true });
+      expect(isAddIndent(event)).toBe(true);
+    });
+
+    test('Ctrl + ]を検出する', () => {
+      const event = new KeyboardEvent('keydown', { key: ']', ctrlKey: true });
+      expect(isAddIndent(event)).toBe(true);
+    });
+
+    test('Shift+Tabは検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true });
+      expect(isAddIndent(event)).toBe(false);
+    });
+  });
+
+  describe('isRemoveIndent', () => {
+    test('Shift+Tabを検出する', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true });
+      expect(isRemoveIndent(event)).toBe(true);
+    });
+
+    test('Cmd + [を検出する', () => {
+      const event = new KeyboardEvent('keydown', { key: '[', metaKey: true });
+      expect(isRemoveIndent(event)).toBe(true);
+    });
+
+    test('Ctrl + [を検出する', () => {
+      const event = new KeyboardEvent('keydown', { key: '[', ctrlKey: true });
+      expect(isRemoveIndent(event)).toBe(true);
+    });
+
+    test('Tab単体は検出しない', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: false });
+      expect(isRemoveIndent(event)).toBe(false);
     });
   });
 
