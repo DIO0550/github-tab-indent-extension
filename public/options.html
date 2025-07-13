@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Tab Indent Extension - 設定</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>GitHub Tab Indent Extension</h1>
+      <p class="subtitle">拡張機能の設定</p>
+    </header>
+
+    <main>
+      <section class="settings-section">
+        <h2>インデント設定</h2>
+        
+        <div class="setting-item">
+          <label for="indent-size">インデントサイズ</label>
+          <div class="setting-control">
+            <input type="number" id="indent-size" min="1" max="8" value="2">
+            <span class="unit">スペース</span>
+          </div>
+          <p class="description">Tabキーを押した時に挿入されるスペースの数</p>
+        </div>
+
+        <div class="setting-item">
+          <label for="indent-type">インデント文字</label>
+          <div class="setting-control">
+            <select id="indent-type">
+              <option value="space" selected>スペース</option>
+              <option value="tab">タブ</option>
+            </select>
+          </div>
+          <p class="description">インデントに使用する文字の種類</p>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>ショートカットキー設定</h2>
+        
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="enable-tab" checked>
+            <span>Tab / Shift+Tab</span>
+          </label>
+          <p class="description">基本的なインデント操作</p>
+        </div>
+
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="enable-bracket" checked>
+            <span>Cmd/Ctrl + ] / [</span>
+          </label>
+          <p class="description">VS Code スタイルのインデント操作</p>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>適用範囲</h2>
+        
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="apply-to-comments" checked>
+            <span>コメント欄</span>
+          </label>
+          <p class="description">Issue、Pull Request のコメント欄</p>
+        </div>
+
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="apply-to-code-editor" checked>
+            <span>コードエディタ</span>
+          </label>
+          <p class="description">ファイル編集時のコードエディタ</p>
+        </div>
+
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="apply-to-markdown" checked>
+            <span>Markdown エディタ</span>
+          </label>
+          <p class="description">README.md などの Markdown ファイル編集</p>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button id="save-button" class="primary-button">設定を保存</button>
+        <button id="reset-button" class="secondary-button">デフォルトに戻す</button>
+      </div>
+
+      <div id="status-message" class="status-message" hidden></div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 GitHub Tab Indent Extension</p>
+    </footer>
+  </div>
+
+  <script src="../dist/options.js"></script>
+</body>
+</html>
