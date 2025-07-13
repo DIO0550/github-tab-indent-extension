@@ -1,15 +1,17 @@
-import { KEY_CODES, EVENT_TYPES } from "./constants";
+import { EVENT_TYPES } from "./constants";
 import { getTextAreaElement } from "./textareaDetector";
-import { createIndentHandler } from "./indentHandler";
+import { detectIndentAction, IndentActionType } from "./shortcutDetector";
+import { createIndentHandlerFromType } from "./indentHandler";
 
-function handleTabKey(event: KeyboardEvent): void {
-  if (event.key !== KEY_CODES.TAB) {
+function handleKeyDown(event: KeyboardEvent): void {
+  const target = getTextAreaElement(event);
+  if (!target) {
     return;
   }
 
-  const target = getTextAreaElement(event);
-
-  if (!target) {
+  // キーイベントからインデント操作のタイプを判定
+  const actionType = detectIndentAction(event);
+  if (actionType === IndentActionType.NONE) {
     return;
   }
 
@@ -23,17 +25,22 @@ function handleTabKey(event: KeyboardEvent): void {
     return;
   }
 
-  const handler = createIndentHandler(event);
-  const result = handler(value, start, end);
-  
-  if (result) {
-    target.value = result.newValue;
-    target.selectionStart = target.selectionEnd = result.cursorPosition;
+  // インデント操作タイプから適切なハンドラーを取得
+  const indentHandler = createIndentHandlerFromType(actionType);
+  if (!indentHandler) {
+    return;
   }
 
+  // インデント操作を実行
+  const result = indentHandler(value, start, end);
+  if (!result) {
+    return;
+  }
+  
+  // テキストエリアを更新
+  target.value = result.newValue;
+  target.selectionStart = target.selectionEnd = result.cursorPosition;
   target.dispatchEvent(new Event(EVENT_TYPES.INPUT, { bubbles: true }));
 }
 
-document.addEventListener(EVENT_TYPES.KEYDOWN, handleTabKey, true);
-
-console.log("GitHub Tab Indent Extension loaded");
+document.addEventListener(EVENT_TYPES.KEYDOWN, handleKeyDown, true);
