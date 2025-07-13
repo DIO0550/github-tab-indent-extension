@@ -3,7 +3,7 @@
   "name": "GitHub Tab Indent Extension",
   "version": "0.1.0",
   "description": "Proper tab indentation for GitHub text editors",
-  "permissions": [],
+  "permissions": ["storage"],
   "host_permissions": [
     "https://github.com/*"
   ],
@@ -14,6 +14,7 @@
       "run_at": "document_idle"
     }
   ],
+  "options_page": "options.html",
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
