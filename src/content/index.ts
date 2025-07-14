@@ -1,7 +1,20 @@
 import { EVENT_TYPES } from "./constants";
 import { getTextAreaElement } from "./textareaDetector";
 import { detectIndentAction, IndentActionType } from "./shortcutDetector";
-import { indentHandlerFor } from "./indentHandler";
+import { getIndentHandler } from "./indentHandler";
+import { IndentResult } from "./indentProcessor";
+import { EditableElement } from "./textareaDetector";
+
+/**
+ * テキストエリアの内容とカーソル位置を更新する
+ * @param target 更新対象の要素
+ * @param result インデント処理の結果
+ */
+function updateTextArea(target: EditableElement, result: IndentResult): void {
+  target.value = result.newValue;
+  target.selectionStart = target.selectionEnd = result.cursorPosition;
+  target.dispatchEvent(new Event(EVENT_TYPES.INPUT, { bubbles: true }));
+}
 
 function handleKeyDown(event: KeyboardEvent): void {
   const target = getTextAreaElement(event);
@@ -26,7 +39,7 @@ function handleKeyDown(event: KeyboardEvent): void {
   }
 
   // インデント操作タイプから適切なハンドラーを取得
-  const indentHandler = indentHandlerFor(actionType);
+  const indentHandler = getIndentHandler(actionType);
   if (!indentHandler) {
     return;
   }
@@ -38,9 +51,7 @@ function handleKeyDown(event: KeyboardEvent): void {
   }
   
   // テキストエリアを更新
-  target.value = result.newValue;
-  target.selectionStart = target.selectionEnd = result.cursorPosition;
-  target.dispatchEvent(new Event(EVENT_TYPES.INPUT, { bubbles: true }));
+  updateTextArea(target, result);
 }
 
 document.addEventListener(EVENT_TYPES.KEYDOWN, handleKeyDown, true);
