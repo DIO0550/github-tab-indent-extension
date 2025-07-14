@@ -1,6 +1,6 @@
-export const INDENT_SIZE = 2;
-export const INDENT_CHAR = ' ';
-export const INDENT_STRING = INDENT_CHAR.repeat(INDENT_SIZE);
+// デフォルトのインデント設定
+export const DEFAULT_INDENT_SIZE = 2;
+export const DEFAULT_INDENT_CHAR = ' ';
 
 export const SUPPORTED_ELEMENTS = ['TEXTAREA', 'INPUT'] as const;
 export type SupportedElement = typeof SUPPORTED_ELEMENTS[number];
