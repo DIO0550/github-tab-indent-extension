@@ -19,4 +19,4 @@ export type { Settings } from './constants';
 export { DEFAULT_SETTINGS } from './constants';
 export { loadSettings, saveSettings, resetSettings } from './settingsStorage';
 export { getFormValues, setFormValues, showStatusMessage } from './domHelpers';
-export { handleSave, handleReset, initializeOptions as initialize } from './optionsHandlers';
+export { handleSave, handleReset, initializeOptions } from './optionsHandlers';

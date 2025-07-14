@@ -4,13 +4,12 @@ import {
   DEFAULT_SETTINGS,
   loadSettings,
   saveSettings,
-  resetSettings,
   getFormValues,
   setFormValues,
   showStatusMessage,
   handleSave,
   handleReset,
-  initialize,
+  initializeOptions,
 } from './index';
 
 // Chrome API モック
@@ -25,13 +24,6 @@ const mockChrome = {
 
 // グローバルオブジェクトのモック
 vi.stubGlobal('chrome', mockChrome);
-
-// DOM要素のモックを作成する関数
-function createMockElement(type: 'input' | 'select', id: string): HTMLElement {
-  const element = document.createElement(type);
-  element.id = id;
-  return element;
-}
 
 // DOM環境のセットアップ
 function setupDOM() {
@@ -212,8 +204,6 @@ describe('Options Page', () => {
   describe('handleSave', () => {
     it('設定を保存して成功メッセージを表示する', async () => {
       mockChrome.storage.sync.set.mockResolvedValue(undefined);
-      const showStatusMessageSpy = vi.spyOn({ showStatusMessage }, 'showStatusMessage');
-
       await handleSave();
 
       expect(mockChrome.storage.sync.set).toHaveBeenCalled();
@@ -264,12 +254,12 @@ describe('Options Page', () => {
     });
   });
 
-  describe('initialize', () => {
+  describe('initializeOptions', () => {
     it('設定を読み込んでフォームに反映し、イベントリスナーを設定する', async () => {
       const customSettings = { indentSize: 4, indentType: 'tab' as const };
       mockChrome.storage.sync.get.mockResolvedValue({ settings: customSettings });
 
-      await initialize();
+      await initializeOptions();
 
       // 設定がフォームに反映されていることを確認
       expect((document.getElementById('indent-size') as HTMLInputElement).value).toBe('4');
@@ -286,14 +276,14 @@ describe('Options Page', () => {
   });
 
   describe('DOMContentLoaded', () => {
-    it('DOMContentLoadedイベントでinitializeが呼ばれることを確認', async () => {
+    it('DOMContentLoadedイベントでinitializeOptionsが呼ばれることを確認', async () => {
       // コードの最後の行がDOMContentLoadedのイベントリスナーを設定していることを確認
       // 実際のイベント発火のテストはE2Eテストで行うのが適切
       
-      // initializeが呼ばれた際の動作を確認
+      // initializeOptionsが呼ばれた際の動作を確認
       mockChrome.storage.sync.get.mockResolvedValue({ settings: { indentSize: 4 } });
 
-      await initialize();
+      await initializeOptions();
 
       expect(mockChrome.storage.sync.get).toHaveBeenCalledWith('settings');
       expect((document.getElementById('indent-size') as HTMLInputElement).value).toBe('4');
