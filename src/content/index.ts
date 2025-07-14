@@ -4,6 +4,8 @@ import { detectIndentAction, IndentActionType } from "./shortcutDetector";
 import { getIndentHandler } from "./indentHandler";
 import { IndentResult } from "./indentProcessor";
 import { EditableElement } from "./textareaDetector";
+import { initializeSettings, getCurrentSettings } from "./settings";
+import { detectTextAreaContext, isEnabledInContext } from "./contextDetector";
 
 /**
  * テキストエリアの内容とカーソル位置を更新する
@@ -19,6 +21,13 @@ function updateTextArea(target: EditableElement, result: IndentResult): void {
 function handleKeyDown(event: KeyboardEvent): void {
   const target = getTextAreaElement(event);
   if (!target) {
+    return;
+  }
+
+  // コンテキストを検出して、機能が有効かチェック
+  const context = detectTextAreaContext(target);
+  const settings = getCurrentSettings();
+  if (!isEnabledInContext(context, settings)) {
     return;
   }
 
@@ -54,4 +63,11 @@ function handleKeyDown(event: KeyboardEvent): void {
   updateTextArea(target, result);
 }
 
-document.addEventListener(EVENT_TYPES.KEYDOWN, handleKeyDown, true);
+// 設定を初期化してからイベントリスナーを登録
+async function initialize(): Promise<void> {
+  await initializeSettings();
+  document.addEventListener(EVENT_TYPES.KEYDOWN, handleKeyDown, true);
+}
+
+// 初期化を実行
+initialize();
