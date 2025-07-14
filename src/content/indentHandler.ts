@@ -8,11 +8,11 @@ export type IndentHandler = (
 ) => IndentResult | undefined;
 
 /**
- * IndentActionTypeに対応するインデントハンドラーを返す
+ * IndentActionTypeに対応するインデントハンドラーを取得する
  * @param actionType インデント操作のタイプ
  * @returns インデントハンドラー関数
  */
-export function indentHandlerFor(actionType: IndentActionType): IndentHandler | null {
+export function getIndentHandler(actionType: IndentActionType): IndentHandler | null {
   switch (actionType) {
     case IndentActionType.ADD:
       return addIndent;
