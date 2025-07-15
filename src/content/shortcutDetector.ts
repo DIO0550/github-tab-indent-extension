@@ -1,3 +1,5 @@
+import { getCurrentSettings } from "./settings";
+
 /**
  * インデント操作のタイプ
  */
@@ -75,7 +77,10 @@ export function isRemoveIndentShortcut(event: KeyboardEvent): boolean {
  * @returns 該当する場合true
  */
 export function isAddIndent(event: KeyboardEvent): boolean {
-  return isAddIndentWithTab(event) || isAddIndentShortcut(event);
+  const settings = getCurrentSettings();
+  const tabEnabled = settings.enableTab && isAddIndentWithTab(event);
+  const bracketEnabled = settings.enableBracket && isAddIndentShortcut(event);
+  return tabEnabled || bracketEnabled;
 }
 
 /**
@@ -84,7 +89,10 @@ export function isAddIndent(event: KeyboardEvent): boolean {
  * @returns 該当する場合true
  */
 export function isRemoveIndent(event: KeyboardEvent): boolean {
-  return isRemoveIndentWithTab(event) || isRemoveIndentShortcut(event);
+  const settings = getCurrentSettings();
+  const tabEnabled = settings.enableTab && isRemoveIndentWithTab(event);
+  const bracketEnabled = settings.enableBracket && isRemoveIndentShortcut(event);
+  return tabEnabled || bracketEnabled;
 }
 
 /**

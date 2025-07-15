@@ -1,4 +1,4 @@
-import { INDENT_SIZE, INDENT_STRING } from "./constants";
+import { getCurrentSettings } from "./settings";
 
 type TextValue = string;
 type CursorPosition = number;
@@ -11,6 +11,25 @@ export interface IndentResult {
   newValue: TextValue;
   /** 処理後のカーソル位置 */
   cursorPosition: CursorPosition;
+}
+
+/**
+ * 現在の設定に基づいてインデント文字列を生成する
+ * @returns インデント文字列
+ */
+function getIndentString(): string {
+  const settings = getCurrentSettings();
+  const char = settings.indentType === 'tab' ? '\t' : ' ';
+  return settings.indentType === 'tab' ? char : char.repeat(settings.indentSize);
+}
+
+/**
+ * 現在の設定に基づいてインデントサイズを取得する
+ * @returns インデントサイズ
+ */
+function getIndentSize(): number {
+  const settings = getCurrentSettings();
+  return settings.indentType === 'tab' ? 1 : settings.indentSize;
 }
 
 /**
@@ -67,9 +86,11 @@ export function addIndent(
   selectionEnd: CursorPosition
 ): IndentResult {
   const { before, after } = splitTextAtSelection(value, selectionStart, selectionEnd);
-  const newValue = before + INDENT_STRING + after;
+  const indentString = getIndentString();
+  const indentSize = getIndentSize();
+  const newValue = before + indentString + after;
   
-  return createIndentResult(newValue, selectionStart + INDENT_SIZE);
+  return createIndentResult(newValue, selectionStart + indentSize);
 }
 
 /**
@@ -86,13 +107,15 @@ export function removeIndent(
 ): IndentResult | undefined {
   const { before, after } = splitTextAtSelection(value, selectionStart, selectionEnd);
   const currentLine = getCurrentLine(before);
+  const indentString = getIndentString();
+  const indentSize = getIndentSize();
 
-  if (!currentLine.startsWith(INDENT_STRING)) {
+  if (!currentLine.startsWith(indentString)) {
     return undefined;
   }
 
-  const newValue = before.substring(0, selectionStart - INDENT_SIZE) + after;
-  const newCursorPosition = selectionStart - INDENT_SIZE;
+  const newValue = before.substring(0, selectionStart - indentSize) + after;
+  const newCursorPosition = selectionStart - indentSize;
   
   return createIndentResult(newValue, newCursorPosition);
 }

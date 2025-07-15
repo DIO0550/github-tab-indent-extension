@@ -1,7 +1,30 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { addIndent, removeIndent } from "./indentProcessor";
+import { DEFAULT_SETTINGS } from "../options/constants";
+import { initializeSettings } from "./settings";
+
+// chrome.storage APIをモック
+global.chrome = {
+  storage: {
+    sync: {
+      get: vi.fn()
+    },
+    onChanged: {
+      addListener: vi.fn(),
+      removeListener: vi.fn()
+    }
+  }
+} as any;
 
 describe("indentProcessor", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    // デフォルト設定でchrome.storageをモック
+    chrome.storage.sync.get.mockResolvedValue({ settings: DEFAULT_SETTINGS });
+    // settingsServiceを初期化
+    await initializeSettings();
+  });
+
   describe("addIndent", () => {
     it("カーソル位置にインデントを追加する", () => {
       const value = "Hello World";
@@ -75,6 +98,60 @@ describe("indentProcessor", () => {
       
       expect(result).toBeDefined();
       expect(result!.newValue).toBe(" World");
+      expect(result!.cursorPosition).toBe(0);
+    });
+  });
+
+  describe("設定に基づく動作", () => {
+    it("タブ文字を使用する設定の場合、タブ文字でインデントする", async () => {
+      chrome.storage.sync.get.mockResolvedValue({
+        settings: {
+          ...DEFAULT_SETTINGS,
+          indentType: 'tab',
+        }
+      });
+      
+      await initializeSettings();
+
+      const value = "Hello World";
+      const result = addIndent(value, 5, 5);
+      
+      expect(result.newValue).toBe("Hello\t World");
+      expect(result.cursorPosition).toBe(6);
+    });
+
+    it("インデントサイズが4の場合、4スペースでインデントする", async () => {
+      chrome.storage.sync.get.mockResolvedValue({
+        settings: {
+          ...DEFAULT_SETTINGS,
+          indentSize: 4,
+        }
+      });
+      
+      await initializeSettings();
+
+      const value = "Hello World";
+      const result = addIndent(value, 5, 5);
+      
+      expect(result.newValue).toBe("Hello     World");
+      expect(result.cursorPosition).toBe(9);
+    });
+
+    it("タブ文字設定の場合、タブ文字を削除する", async () => {
+      chrome.storage.sync.get.mockResolvedValue({
+        settings: {
+          ...DEFAULT_SETTINGS,
+          indentType: 'tab',
+        }
+      });
+      
+      await initializeSettings();
+
+      const value = "\tHello World";
+      const result = removeIndent(value, 1, 1);
+      
+      expect(result).toBeDefined();
+      expect(result!.newValue).toBe("Hello World");
       expect(result!.cursorPosition).toBe(0);
     });
   });

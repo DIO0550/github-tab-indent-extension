@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { 
   detectIndentAction, 
   IndentActionType,
@@ -10,8 +10,30 @@ import {
   isAddIndent,
   isRemoveIndent
 } from './shortcutDetector';
+import { DEFAULT_SETTINGS } from '../options/constants';
+import { initializeSettings } from './settings';
+
+// chrome.storage APIをモック
+global.chrome = {
+  storage: {
+    sync: {
+      get: vi.fn()
+    },
+    onChanged: {
+      addListener: vi.fn(),
+      removeListener: vi.fn()
+    }
+  }
+} as any;
 
 describe('shortcutDetector', () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    // デフォルト設定でchrome.storageをモック
+    chrome.storage.sync.get.mockResolvedValue({ settings: DEFAULT_SETTINGS });
+    // settingsServiceを初期化
+    await initializeSettings();
+  });
   describe('isTabKey', () => {
     test('Tabキーを検出する', () => {
       const event = new KeyboardEvent('keydown', { key: 'Tab' });
@@ -166,6 +188,56 @@ describe('shortcutDetector', () => {
       const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true });
       expect(isAddIndent(event)).toBe(false);
     });
+
+    test('enableTabがfalseの場合、Tabを検出しない', async () => {
+      // chrome.storageに新しい設定を設定
+      chrome.storage.sync.get.mockResolvedValue({
+        settings: {
+          ...DEFAULT_SETTINGS,
+          enableTab: false,
+          enableBracket: true,
+        }
+      });
+      
+      // settingsServiceを再初期化して新しい設定を読み込む
+      await initializeSettings();
+      
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: false });
+      expect(isAddIndent(event)).toBe(false);
+    });
+
+    test('enableBracketがfalseの場合、Cmd+]を検出しない', async () => {
+      chrome.storage.sync.get.mockResolvedValue({
+        settings: {
+          ...DEFAULT_SETTINGS,
+          enableTab: true,
+          enableBracket: false,
+        }
+      });
+      
+      await initializeSettings();
+      
+      const event = new KeyboardEvent('keydown', { key: ']', metaKey: true });
+      expect(isAddIndent(event)).toBe(false);
+    });
+
+    test('両方の設定がfalseの場合、何も検出しない', async () => {
+      chrome.storage.sync.get.mockResolvedValue({
+        settings: {
+          ...DEFAULT_SETTINGS,
+          enableTab: false,
+          enableBracket: false,
+        }
+      });
+      
+      await initializeSettings();
+      
+      const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: false });
+      const bracketEvent = new KeyboardEvent('keydown', { key: ']', metaKey: true });
+      
+      expect(isAddIndent(tabEvent)).toBe(false);
+      expect(isAddIndent(bracketEvent)).toBe(false);
+    });
   });
 
   describe('isRemoveIndent', () => {
@@ -187,6 +259,54 @@ describe('shortcutDetector', () => {
     test('Tab単体は検出しない', () => {
       const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: false });
       expect(isRemoveIndent(event)).toBe(false);
+    });
+
+    test('enableTabがfalseの場合、Shift+Tabを検出しない', async () => {
+      chrome.storage.sync.get.mockResolvedValue({
+        settings: {
+          ...DEFAULT_SETTINGS,
+          enableTab: false,
+          enableBracket: true,
+        }
+      });
+      
+      await initializeSettings();
+      
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true });
+      expect(isRemoveIndent(event)).toBe(false);
+    });
+
+    test('enableBracketがfalseの場合、Cmd+[を検出しない', async () => {
+      chrome.storage.sync.get.mockResolvedValue({
+        settings: {
+          ...DEFAULT_SETTINGS,
+          enableTab: true,
+          enableBracket: false,
+        }
+      });
+      
+      await initializeSettings();
+      
+      const event = new KeyboardEvent('keydown', { key: '[', metaKey: true });
+      expect(isRemoveIndent(event)).toBe(false);
+    });
+
+    test('両方の設定がfalseの場合、何も検出しない', async () => {
+      chrome.storage.sync.get.mockResolvedValue({
+        settings: {
+          ...DEFAULT_SETTINGS,
+          enableTab: false,
+          enableBracket: false,
+        }
+      });
+      
+      await initializeSettings();
+      
+      const shiftTabEvent = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true });
+      const bracketEvent = new KeyboardEvent('keydown', { key: '[', metaKey: true });
+      
+      expect(isRemoveIndent(shiftTabEvent)).toBe(false);
+      expect(isRemoveIndent(bracketEvent)).toBe(false);
     });
   });
 
