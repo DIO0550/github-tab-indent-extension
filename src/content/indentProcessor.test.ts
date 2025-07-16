@@ -34,11 +34,11 @@ describe("indentProcessor", () => {
       expect(result.cursorPosition).toBe(7);
     });
 
-    it("選択範囲を置き換えてインデントを追加する", () => {
+    it("選択範囲がある場合でも選択開始位置にインデントを追加する", () => {
       const value = "Hello World";
       const result = addIndent(value, 5, 11);
       
-      expect(result.newValue).toBe("Hello  ");
+      expect(result.newValue).toBe("Hello   World");
       expect(result.cursorPosition).toBe(7);
     });
 
@@ -55,6 +55,22 @@ describe("indentProcessor", () => {
       const result = addIndent(value, 7, 7);
       
       expect(result.newValue).toBe("Line 1\n  Line 2");
+      expect(result.cursorPosition).toBe(9);
+    });
+
+    it("選択範囲が複数文字の場合でも選択開始位置にインデントを追加する", () => {
+      const value = "function test() {}";
+      const result = addIndent(value, 9, 13);
+      
+      expect(result.newValue).toBe("function   test() {}");
+      expect(result.cursorPosition).toBe(11);
+    });
+
+    it("選択範囲が行全体の場合でも選択開始位置にインデントを追加する", () => {
+      const value = "Line 1\nLine 2\nLine 3";
+      const result = addIndent(value, 7, 13);
+      
+      expect(result.newValue).toBe("Line 1\n  Line 2\nLine 3");
       expect(result.cursorPosition).toBe(9);
     });
   });
@@ -92,12 +108,12 @@ describe("indentProcessor", () => {
       expect(result).toBeUndefined();
     });
 
-    it("選択範囲がある場合でもインデントを削除する", () => {
+    it("選択範囲がある場合でも選択開始位置を基準にインデントを削除する", () => {
       const value = "  Hello World";
       const result = removeIndent(value, 2, 7);
       
       expect(result).toBeDefined();
-      expect(result!.newValue).toBe(" World");
+      expect(result!.newValue).toBe("Hello World");
       expect(result!.cursorPosition).toBe(0);
     });
   });
