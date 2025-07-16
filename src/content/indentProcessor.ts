@@ -32,23 +32,6 @@ function getIndentSize(): number {
   return settings.indentType === 'tab' ? 1 : settings.indentSize;
 }
 
-/**
- * テキストを選択範囲の開始位置と終了位置で分割する
- * @param text 分割対象のテキスト
- * @param start 選択範囲の開始位置
- * @param end 選択範囲の終了位置
- * @returns 選択範囲の前後のテキスト
- */
-function splitTextAtSelection(
-  text: TextValue,
-  start: CursorPosition,
-  end: CursorPosition
-): { before: TextValue; after: TextValue } {
-  return {
-    before: text.substring(0, start),
-    after: text.substring(end),
-  };
-}
 
 /**
  * カーソル位置より前のテキストから現在の行を取得する
@@ -75,6 +58,7 @@ function createIndentResult(
 
 /**
  * テキストの指定位置にインデントを追加する
+ * 選択範囲に関わらず、常にカーソル位置（選択開始位置）にインデントを挿入する
  * @param value 処理対象のテキスト
  * @param selectionStart 選択範囲の開始位置
  * @param selectionEnd 選択範囲の終了位置
@@ -85,7 +69,8 @@ export function addIndent(
   selectionStart: CursorPosition,
   selectionEnd: CursorPosition
 ): IndentResult {
-  const { before, after } = splitTextAtSelection(value, selectionStart, selectionEnd);
+  const before = value.substring(0, selectionStart);
+  const after = value.substring(selectionStart);
   const indentString = getIndentString();
   const indentSize = getIndentSize();
   const newValue = before + indentString + after;
@@ -95,6 +80,7 @@ export function addIndent(
 
 /**
  * 現在の行の先頭からインデントを削除する
+ * 選択範囲に関わらず、選択開始位置を基準にインデントを削除する
  * @param value 処理対象のテキスト
  * @param selectionStart 選択範囲の開始位置
  * @param selectionEnd 選択範囲の終了位置
@@ -105,7 +91,8 @@ export function removeIndent(
   selectionStart: CursorPosition,
   selectionEnd: CursorPosition
 ): IndentResult | undefined {
-  const { before, after } = splitTextAtSelection(value, selectionStart, selectionEnd);
+  const before = value.substring(0, selectionStart);
+  const after = value.substring(selectionStart);
   const currentLine = getCurrentLine(before);
   const indentString = getIndentString();
   const indentSize = getIndentSize();
