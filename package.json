@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && vite build --config vite.config.content.ts && vite build --config vite.config.options.ts",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
