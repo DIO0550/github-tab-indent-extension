@@ -14,7 +14,16 @@ import { detectTextAreaContext, isEnabledInContext } from "./contextDetector";
  */
 function updateTextArea(target: EditableElement, result: IndentResult): void {
   target.value = result.newValue;
-  target.selectionStart = target.selectionEnd = result.cursorPosition;
+  
+  // 選択範囲の情報がある場合は選択範囲を維持
+  if (result.selectionStart !== undefined && result.selectionEnd !== undefined) {
+    target.selectionStart = result.selectionStart;
+    target.selectionEnd = result.selectionEnd;
+  } else {
+    // 選択範囲の情報がない場合は、カーソル位置のみ設定
+    target.selectionStart = target.selectionEnd = result.cursorPosition;
+  }
+  
   target.dispatchEvent(new Event(EVENT_TYPES.INPUT, { bubbles: true }));
 }
 
