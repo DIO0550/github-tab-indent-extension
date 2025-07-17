@@ -73,6 +73,26 @@ describe("indentProcessor", () => {
       expect(result.newValue).toBe("Line 1\n  Line 2\nLine 3");
       expect(result.cursorPosition).toBe(9);
     });
+
+    it("複数行を選択してインデントを追加する", () => {
+      const value = "Line 1\nLine 2\nLine 3";
+      const result = addIndent(value, 0, 20); // 全体を選択
+      
+      expect(result.newValue).toBe("  Line 1\n  Line 2\n  Line 3");
+      expect(result.cursorPosition).toBe(2);
+      expect(result.selectionStart).toBe(0);
+      expect(result.selectionEnd).toBe(26); // 新しい長さに合わせて調整
+    });
+
+    it("複数行の途中から選択してインデントを追加する", () => {
+      const value = "Line 1\nLine 2\nLine 3";
+      const result = addIndent(value, 7, 20); // 2行目から最後まで選択
+      
+      expect(result.newValue).toBe("Line 1\n  Line 2\n  Line 3");
+      expect(result.cursorPosition).toBe(9);
+      expect(result.selectionStart).toBe(7);
+      expect(result.selectionEnd).toBe(24);
+    });
   });
 
   describe("removeIndent", () => {
@@ -115,6 +135,39 @@ describe("indentProcessor", () => {
       expect(result).toBeDefined();
       expect(result!.newValue).toBe("Hello World");
       expect(result!.cursorPosition).toBe(0);
+    });
+
+    it("複数行を選択してインデントを削除する", () => {
+      const value = "  Line 1\n  Line 2\n  Line 3";
+      const result = removeIndent(value, 0, 26); // 全体を選択
+      
+      expect(result).toBeDefined();
+      expect(result!.newValue).toBe("Line 1\nLine 2\nLine 3");
+      expect(result!.cursorPosition).toBe(0);
+      expect(result!.selectionStart).toBe(0);
+      expect(result!.selectionEnd).toBe(20);
+    });
+
+    it("複数行の途中から選択してインデントを削除する", () => {
+      const value = "  Line 1\n  Line 2\n  Line 3";
+      const result = removeIndent(value, 9, 26); // 2行目から最後まで選択
+      
+      expect(result).toBeDefined();
+      expect(result!.newValue).toBe("  Line 1\nLine 2\nLine 3");
+      expect(result!.cursorPosition).toBe(9);
+      expect(result!.selectionStart).toBe(9);
+      expect(result!.selectionEnd).toBe(22);
+    });
+
+    it("インデントがない行を含む複数行選択でインデント削除", () => {
+      const value = "  Line 1\nLine 2\n  Line 3";
+      const result = removeIndent(value, 0, 24); // 全体を選択
+      
+      expect(result).toBeDefined();
+      expect(result!.newValue).toBe("Line 1\nLine 2\nLine 3");
+      expect(result!.cursorPosition).toBe(0);
+      expect(result!.selectionStart).toBe(0);
+      expect(result!.selectionEnd).toBe(20);
     });
   });
 
